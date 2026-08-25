@@ -7,7 +7,7 @@ const APP_CONFIG = {
   appName: "Portal Muat Turun E-Book Fizik SPM 2026",
   sellerName: "Cikgu Halim (Shopee Official)",
   storeUrl: "https://shopee.com.my",
-  defaultDownloadLimit: 2, // Had muat turun setiap kod
+  defaultDownloadLimit: 4, // Had muat turun setiap kod (2x Soalan + 2x Skema)
   adminPin: "1234", // PIN lalai untuk akses Panel Admin Penjual
 
   // Maklumat Produk E-Book

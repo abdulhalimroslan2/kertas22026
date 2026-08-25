@@ -178,7 +178,7 @@ class EbookPortalApp {
             orderId: data.order_id,
             customerName: data.customer_name,
             downloadsLeft: data.downloads_left,
-            maxDownloads: data.max_downloads || 2,
+            maxDownloads: data.max_downloads || 4,
             downloadCount: data.download_count || 0,
             status: data.status,
             createdAt: data.created_at,
@@ -206,7 +206,7 @@ class EbookPortalApp {
 
       // Semak baki muat turun
       if (keyRecord.downloadsLeft <= 0 || keyRecord.status === "exhausted") {
-        this.showStatus("Kod Lesen ini telah mencapai had maksimum muat turun (2 kali). Akses muat turun telah dikunci.", "warning");
+        this.showStatus("Kod Lesen ini telah mencapai had maksimum muat turun (4 kali). Akses muat turun telah dikunci.", "warning");
         this.renderDownloadSection(keyRecord, false);
         return;
       }
@@ -219,7 +219,7 @@ class EbookPortalApp {
 
       // Kod Sah & Aktif
       const cloudNotice = this.isCloudActive ? " [Disahkan oleh Supabase Awan]" : "";
-      this.showStatus(`Kod Lesen Sah!${cloudNotice} Anda mempunyai baki ${keyRecord.downloadsLeft} daripada ${keyRecord.maxDownloads || 2} kali muat turun.`, "success");
+      this.showStatus(`Kod Lesen Sah!${cloudNotice} Anda mempunyai baki ${keyRecord.downloadsLeft} daripada ${keyRecord.maxDownloads || 4} kali muat turun.`, "success");
       this.renderDownloadSection(keyRecord, true);
 
       setTimeout(() => {
@@ -252,22 +252,22 @@ class EbookPortalApp {
 
     if (quotaChip) {
       const left = keyRecord.downloadsLeft;
-      const max = keyRecord.maxDownloads || 2;
+      const max = keyRecord.maxDownloads || 4;
       quotaChip.innerHTML = `<span>⚡ Baki Muat Turun: ${left} / ${max} kali</span>`;
       
       quotaChip.className = "quota-chip";
-      if (left >= 2) quotaChip.classList.add("safe");
-      else if (left === 1) quotaChip.classList.add("low");
+      if (left >= 3) quotaChip.classList.add("safe");
+      else if (left >= 1) quotaChip.classList.add("low");
       else quotaChip.classList.add("exhausted");
     }
 
     if (quotaHint) {
-      if (keyRecord.downloadsLeft === 2) {
-        quotaHint.innerText = "Anda boleh muat turun modul soalan dan skema jawapan.";
-      } else if (keyRecord.downloadsLeft === 1) {
-        quotaHint.innerText = "Amaran: Tinggal 1 kali muat turun sahaja lagi.";
+      if (keyRecord.downloadsLeft >= 3) {
+        quotaHint.innerText = "Anda mempunyai 4 kali muat turun (contoh: 2x Versi Soalan & 2x Versi Skema).";
+      } else if (keyRecord.downloadsLeft >= 1) {
+        quotaHint.innerText = `Baki tinggal ${keyRecord.downloadsLeft} kali muat turun lagi.`;
       } else {
-        quotaHint.innerText = "Had muat turun telah habis. Sila simpan salinan fail anda.";
+        quotaHint.innerText = "Had muat turun (4 kali) telah habis. Sila simpan salinan fail anda.";
       }
     }
 

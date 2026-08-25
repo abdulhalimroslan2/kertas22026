@@ -246,7 +246,7 @@ class EbookAdminManager {
 
     const orderId = orderInput ? orderInput.value.trim() : "";
     const customerName = buyerInput ? buyerInput.value.trim() : "";
-    const maxDownloads = parseInt(limitInput ? limitInput.value : 2) || 2;
+    const maxDownloads = parseInt(limitInput ? limitInput.value : 4) || 4;
     const prefix = (prefixInput && prefixInput.value.trim()) ? prefixInput.value.trim().toUpperCase() : "FZ26";
 
     const newKey = this.generateRandomKey(prefix);
@@ -307,7 +307,7 @@ class EbookAdminManager {
     const prefixInput = document.getElementById("bulkPrefixInput");
 
     const count = Math.min(Math.max(parseInt(countInput ? countInput.value : 5) || 5, 1), 50);
-    const maxDownloads = parseInt(limitInput ? limitInput.value : 2) || 2;
+    const maxDownloads = parseInt(limitInput ? limitInput.value : 4) || 4;
     const prefix = (prefixInput && prefixInput.value.trim()) ? prefixInput.value.trim().toUpperCase() : "FZ26";
 
     const vault = this.getVault();
@@ -383,7 +383,7 @@ Berikut adalah pautan & Kod Lesen untuk memuat turun E-Book Fizik Percubaan SPM 
 2. Skema & Panduan Jawapan Lengkap + Tip A+ (PDF)
 
 ⚠️ PERINGATAN PENTING:
-- Kod lesen ini terhad kepada ${keyRecord.maxDownloads || 2} KALI MUAT TURUN sahaja bagi mengelakkan perkongsian tanpa izin.
+- Kod lesen ini diberikan ${keyRecord.maxDownloads || 4} KALI MUAT TURUN (cth: 2x Soalan + 2x Skema) bagi kemudahan anda.
 - Sila terus simpan fail PDF ke peranti (Google Drive / Files / Storan Peranti) setelah selesai muat turun.
 
 Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizik 2026! 🎯`;
