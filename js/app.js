@@ -16,21 +16,43 @@ class EbookPortalApp {
   async init() {
     this.initStorage();
     this.initSupabaseClient();
+
+    // Safari kadangkala lambat memuatkan SDK CDN — cuba semula jika perlu
+    if (!this.isCloudActive && !window.supabase) {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      this.initSupabaseClient();
+    }
+
     this.bindEvents();
     this.checkUrlParams();
     this.renderProductInfo();
   }
 
-  // Inisialisasi Klien Supabase
+  // Inisialisasi Klien Supabase (Safari-compatible)
   initSupabaseClient() {
-    const savedUrl = localStorage.getItem("supabase_url") || (APP_CONFIG.supabase && APP_CONFIG.supabase.url);
-    const savedKey = localStorage.getItem("supabase_anon_key") || (APP_CONFIG.supabase && APP_CONFIG.supabase.anonKey);
-
     const badgeEl = document.getElementById("cloudStatusBadge");
 
-    if (savedUrl && savedKey && window.supabase) {
+    // Sentiasa gunakan konfigurasi hardcoded terlebih dahulu
+    const configUrl = (APP_CONFIG.supabase && APP_CONFIG.supabase.url) || "";
+    const configKey = (APP_CONFIG.supabase && APP_CONFIG.supabase.anonKey) || "";
+
+    // Fallback ke localStorage hanya jika config tidak ada
+    let supaUrl = configUrl;
+    let supaKey = configKey;
+
+    if (!supaUrl || !supaKey) {
       try {
-        this.supabase = window.supabase.createClient(savedUrl.trim(), savedKey.trim());
+        supaUrl = localStorage.getItem("supabase_url") || "";
+        supaKey = localStorage.getItem("supabase_anon_key") || "";
+      } catch (e) {
+        // Safari Private Browsing boleh menyekat localStorage
+        console.warn("localStorage tidak tersedia (Safari Private Browsing?):", e);
+      }
+    }
+
+    if (supaUrl && supaKey && window.supabase) {
+      try {
+        this.supabase = window.supabase.createClient(supaUrl.trim(), supaKey.trim());
         this.isCloudActive = true;
         if (badgeEl) {
           badgeEl.innerHTML = "🟢 Cloud: Supabase Aktif";
@@ -51,22 +73,30 @@ class EbookPortalApp {
         badgeEl.innerHTML = "🟡 Mod: Setempat (Local)";
         badgeEl.className = "meta-tag";
       }
+      if (!window.supabase) {
+        console.error("Supabase SDK tidak dimuat. Semak sambungan internet.");
+      }
     }
   }
 
   // Inisialisasi storan tempatan (dengan data awal jika kosong)
   initStorage() {
-    const existing = localStorage.getItem(this.storageKey);
-    if (!existing) {
-      const initialVault = {
-        keys: APP_CONFIG.initialKeys || [],
-        settings: {
-          downloadLimit: APP_CONFIG.defaultDownloadLimit,
-          adminPin: APP_CONFIG.adminPin,
-          productFiles: APP_CONFIG.product.files
-        }
-      };
-      localStorage.setItem(this.storageKey, JSON.stringify(initialVault));
+    try {
+      const existing = localStorage.getItem(this.storageKey);
+      if (!existing) {
+        const initialVault = {
+          keys: APP_CONFIG.initialKeys || [],
+          settings: {
+            downloadLimit: APP_CONFIG.defaultDownloadLimit,
+            adminPin: APP_CONFIG.adminPin,
+            productFiles: APP_CONFIG.product.files
+          }
+        };
+        localStorage.setItem(this.storageKey, JSON.stringify(initialVault));
+      }
+    } catch (e) {
+      // Safari Private Browsing atau localStorage penuh
+      console.warn("Tidak dapat mengakses localStorage:", e);
     }
   }
 
@@ -75,7 +105,7 @@ class EbookPortalApp {
       const raw = localStorage.getItem(this.storageKey);
       return raw ? JSON.parse(raw) : { keys: [], settings: {} };
     } catch (e) {
-      console.error("Ralat membaca storan:", e);
+      console.warn("Ralat membaca storan tempatan:", e);
       return { keys: [], settings: {} };
     }
   }
@@ -85,7 +115,7 @@ class EbookPortalApp {
       localStorage.setItem(this.storageKey, JSON.stringify(vault));
       window.dispatchEvent(new CustomEvent("vaultUpdated", { detail: vault }));
     } catch (e) {
-      console.error("Ralat menyimpan storan:", e);
+      console.warn("Ralat menyimpan storan tempatan:", e);
     }
   }
 
@@ -134,7 +164,7 @@ class EbookPortalApp {
       const input = document.getElementById("licenseKeyInput");
       if (input) {
         input.value = keyParam.trim().toUpperCase();
-        setTimeout(() => this.handleVerifyKey(), 400);
+        setTimeout(() => this.handleVerifyKey(), 800);
       }
     }
   }
