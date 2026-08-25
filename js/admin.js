@@ -190,7 +190,7 @@ class EbookAdminManager {
     const pinError = document.getElementById("pinError");
     const enteredPin = pinInput ? pinInput.value.trim() : "";
 
-    const correctPin = APP_CONFIG.adminPin || "1234";
+    const correctPin = APP_CONFIG.adminPin || "@reeZ860";
 
     if (enteredPin === correctPin) {
       this.isAuthenticated = true;
@@ -202,7 +202,7 @@ class EbookAdminManager {
       window.portalApp.showToast("Log masuk Admin berjaya!", "success");
     } else {
       if (pinError) {
-        pinError.innerText = "PIN salah. Sila cuba lagi (Lalai: 1234).";
+        pinError.innerText = "Kata laluan salah. Sila cuba lagi.";
         pinError.style.display = "block";
       }
     }

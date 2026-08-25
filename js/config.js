@@ -8,7 +8,7 @@ const APP_CONFIG = {
   sellerName: "Cikgu Halim (Shopee Official)",
   storeUrl: "https://shopee.com.my",
   defaultDownloadLimit: 4, // Had muat turun setiap kod (2x Soalan + 2x Skema)
-  adminPin: "1234", // PIN lalai untuk akses Panel Admin Penjual
+  adminPin: "@reeZ860", // Kata Laluan Keselamatan Admin Penjual
 
   // Maklumat Produk E-Book
   product: {
