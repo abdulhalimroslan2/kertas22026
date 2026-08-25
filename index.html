@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Penebusan E-Book Fizik SPM 2026 | Shopee Official</title>
+  <meta name="description" content="Portal rasmi muat turun E-Book PDF Fizik Percubaan SPM 2026 Kertas 2 Topikal & Skema Lengkap untuk pembeli sah Shopee.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Supabase Official JS SDK CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Ambient Glowing Orbs -->
+  <div class="bg-glow-orb orb-1"></div>
+  <div class="bg-glow-orb orb-2"></div>
+
+  <div class="app-container">
+    
+    <!-- Top Navbar -->
+    <header class="navbar">
+      <div class="brand-badge">
+        <div class="brand-icon">⚛️</div>
+        <div class="brand-text">
+          <h1>Portal E-Book Fizik 2026</h1>
+          <p>Sistem Penebusan & Muat Turun Sah</p>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <span id="cloudStatusBadge" class="meta-tag price-tag" style="font-size:0.75rem; cursor:pointer;" onclick="window.adminManager.handleOpenAdmin()" title="Status Pengesahan Awan">
+          ☁️ Cloud: Aktif
+        </span>
+        <button id="openAdminBtn" class="btn btn-admin" title="Akses Pengurusan Penjual">
+          ⚙️ Panel Penjual
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="shopee-badge">
+        <span>🛍️</span>
+        <span>Pembelian Sah Kedai Shopee Malaysia</span>
+      </div>
+      <h1 class="hero-title" id="productTitle">E-Book PDF Fizik Percubaan Negeri 2026 Topikal Kertas 2</h1>
+      <p class="hero-subtitle" id="productSubtitle">
+        Masukkan Kod Lesen yang anda terima di Shopee Chat untuk memuat turun modul soalan lengkap dan skema jawapan terperinci.
+      </p>
+    </section>
+
+    <!-- Product Spotlight Card -->
+    <div class="product-spotlight">
+      <div class="product-cover-thumb">
+        <span>📘</span>
+      </div>
+      <div class="product-info-mini">
+        <h3>E-Book Fizik SPM 2026 (Kertas 2 + Skema Lengkap)</h3>
+        <div class="product-meta-tags">
+          <span class="meta-tag price-tag" id="productPrice">RM 19.99</span>
+          <span class="meta-tag">Format PDF HD</span>
+          <span class="meta-tag">Topikal Tingkatan 4 & 5</span>
+          <span class="meta-tag">Skema Pemarkahan A+</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main License Key Verification Card -->
+    <main class="verify-card">
+      <div class="card-header">
+        <h2>🔑 Tebus E-Book Anda</h2>
+        <p>Sila masukkan Kod Lesen 12-aksara anda di bawah:</p>
+      </div>
+
+      <form id="verifyForm">
+        <div class="key-input-group">
+          <div class="input-wrapper">
+            <span class="key-icon">🏷️</span>
+            <input 
+              type="text" 
+              id="licenseKeyInput" 
+              class="key-input" 
+              placeholder="Contoh: FZ26-XXXX-XXXX" 
+              autocomplete="off"
+              spellcheck="false"
+              required>
+          </div>
+          <button type="submit" class="btn btn-primary verify-btn" id="verifyBtn">
+            <span>Sahkan & Tebus</span> ➔
+          </button>
+        </div>
+      </form>
+
+      <div class="helper-text">
+        <span>💡 Kod lesen diberikan terus melalui mesej Shopee Chat selepas pesanan dibuat.</span>
+      </div>
+
+      <!-- Dynamic Status / Alert Message -->
+      <div id="statusMsg" class="status-msg"></div>
+    </main>
+
+    <!-- Download Center (Unlocked upon key verification) -->
+    <section id="downloadSection" class="download-section">
+      
+      <!-- License & Quota Summary Banner -->
+      <div class="license-summary-banner">
+        <div class="summary-left">
+          <div class="verified-icon">✓</div>
+          <div class="summary-info">
+            <h3>Lesen Disahkan: <span id="activeKeyDisplay" style="color: #60a5fa; font-family: 'JetBrains Mono', monospace;">FZ26-XXXX-XXXX</span></h3>
+            <p>Akses muat turun fail PDF telah dibuka khas untuk anda.</p>
+          </div>
+        </div>
+
+        <div class="quota-tracker">
+          <div class="quota-chip safe" id="quotaChip">
+            <span>⚡ Baki Muat Turun: 2 / 2 kali</span>
+          </div>
+          <span class="quota-hint" id="quotaHint">Setiap muat turun akan menolak 1 kuota.</span>
+        </div>
+      </div>
+
+      <!-- Download Action Cards Grid -->
+      <div class="download-grid" id="downloadFilesGrid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+      <!-- Step by step guide to save on mobile & pc -->
+      <div class="notice-box">
+        <div class="notice-icon">📌</div>
+        <div class="notice-text">
+          <h4>Panduan Penting Penyimpanan Fail:</h4>
+          <ul>
+            <li><strong>Had Muat Turun:</strong> Setiap kod lesen dihadkan kepada <strong>2 kali muat turun</strong> sahaja bagi memelihara hak cipta modul.</li>
+            <li><strong>Pengguna iPhone / iPad:</strong> Selepas fail dibuka di Safari, tekan ikon <em>Share (Kongsi)</em> ➔ pilih <em>"Save to Files" (Simpan ke Fail)</em> atau <em>Google Drive</em>.</li>
+            <li><strong>Pengguna Android / PC:</strong> Fail akan automatik disimpan ke folder <em>Downloads</em> di peranti anda.</li>
+            <li>Sekiranya anda mengalami gangguan capaian internet semasa muat turun, sila hubungi kami di Shopee Chat dengan menyatakan nombor pesanan anda.</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>&copy; 2026 E-Book Fizik SPM Percubaan Negeri. Hak Cipta Terpelihara.</p>
+      <p style="font-size:0.75rem; color:var(--text-dim);">Disediakan untuk kemudahan pelajar & guru SPM Malaysia.</p>
+      <div class="footer-links">
+        <a href="#verifyForm" class="footer-link">Tebus Kod</a>
+        <span>•</span>
+        <a href="javascript:void(0)" onclick="window.adminManager.handleOpenAdmin()" class="footer-link">Panel Penjual (Admin)</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL: PIN PENGESAHAN ADMIN PENJUAL                       -->
+  <!-- ========================================================= -->
+  <div id="adminPinModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 380px;">
+      <div class="modal-header">
+        <h3>🔒 Log Masuk Penjual</h3>
+        <button class="modal-close-btn" data-close-modal>&times;</button>
+      </div>
+      <form id="adminPinForm">
+        <div class="modal-body">
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+            Sila masukkan PIN keselamatan untuk membuka panel penjana kod lesen (Lalai: <strong>1234</strong>).
+          </p>
+          <div class="form-group">
+            <label class="form-label">PIN Admin:</label>
+            <input type="password" id="adminPinInput" class="form-control" placeholder="Masukkan PIN" maxlength="10" required>
+            <div id="pinError" style="color: #f87171; font-size: 0.8rem; margin-top: 6px; display: none;"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-close-modal>Batal</button>
+          <button type="submit" class="btn btn-primary btn-sm">Buka Panel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL UTAMA: PANEL PENGURUSAN ADMIN PENJUAL               -->
+  <!-- ========================================================= -->
+  <div id="adminMainModal" class="modal-backdrop">
+    <div class="modal-dialog modal-lg">
+      
+      <div class="modal-header">
+        <div>
+          <h3>⚙️ Panel Pengurusan Kod Lesen Penjual</h3>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Jana Kod Lesen Pembeli Shopee, Pantau Had 2x Download & Urus Supabase Awan</p>
+        </div>
+        <button class="modal-close-btn" data-close-modal>&times;</button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Tab Navigation -->
+        <div class="admin-tabs">
+          <button class="tab-btn active" data-tab="tab-generate">✨ Jana Kunci & Shopee</button>
+          <button class="tab-btn" data-tab="tab-bulk">📦 Jana Pukal (Bulk)</button>
+          <button class="tab-btn" data-tab="tab-keys">📋 Senarai & Tracker</button>
+          <button class="tab-btn" data-tab="tab-supabase">⚡ Sambungan Supabase</button>
+          <button class="tab-btn" data-tab="tab-backup">💾 Sandaran Data</button>
+        </div>
+
+        <!-- TAB 1: JANA KUNCI TUNGGAL -->
+        <div id="tab-generate" class="tab-pane active">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <div class="form-group">
+              <label class="form-label">ID Pesanan Shopee (Pilihan):</label>
+              <input type="text" id="singleOrderInput" class="form-control" placeholder="cth: 260825A938F1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nama Pembeli (Pilihan):</label>
+              <input type="text" id="singleBuyerInput" class="form-control" placeholder="cth: Amirul Hakim">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Had Muat Turun:</label>
+              <input type="number" id="singleLimitInput" class="form-control" value="2" min="1" max="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prefix Kunci:</label>
+              <input type="text" id="singlePrefixInput" class="form-control" value="FZ26" maxlength="6">
+            </div>
+          </div>
+
+          <button id="generateSingleBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 20px;">
+            ⚡ Jana Kod Lesen Baharu Sekarang
+          </button>
+
+          <!-- Kotak Hasil Kunci & Templat Shopee -->
+          <div id="singleResultBox" class="generated-key-box" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 0.85rem; font-weight: 700; color: #34d399;">✅ Kod Lesen Baharu:</span>
+              <button id="copyOnlyKeyBtn" class="btn btn-secondary btn-sm">📋 Salin Kod Sahaja</button>
+            </div>
+            <div class="key-code-display" id="newKeyCodeDisplay">FZ26-XXXX-XXXX</div>
+
+            <label class="form-label" style="margin-top: 12px;">Mesej Sedia Ada untuk Shopee Chat:</label>
+            <textarea id="shopeeTemplateTextarea" class="shopee-template-textarea" readonly></textarea>
+            
+            <button id="copyShopeeMsgBtn" class="btn btn-success" style="width: 100%;">
+              📋 1-Klik Salin Mesej Lengkap ke Shopee Chat
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 2: JANA PUKAL (BULK) -->
+        <div id="tab-bulk" class="tab-pane">
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+            Jana banyak kod lesen sekaligus untuk disimpan atau dieksport ke senarai inventori Shopee anda.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <div class="form-group">
+              <label class="form-label">Bilangan Kod (Maks: 50):</label>
+              <input type="number" id="bulkCountInput" class="form-control" value="10" min="1" max="50">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Had Muat Turun Setiap Kod:</label>
+              <input type="number" id="bulkLimitInput" class="form-control" value="2" min="1" max="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prefix Kunci:</label>
+              <input type="text" id="bulkPrefixInput" class="form-control" value="FZ26" maxlength="6">
+            </div>
+          </div>
+          <button id="generateBulkBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 16px;">
+            📦 Jana Kod Pukal
+          </button>
+
+          <div id="bulkResultBox" class="generated-key-box" style="display: none;">
+            <label class="form-label">Senarai Kod Pukal yang Dijana:</label>
+            <textarea id="bulkResultTextarea" class="shopee-template-textarea" style="height: 140px;" readonly></textarea>
+          </div>
+        </div>
+
+        <!-- TAB 3: SENARAI & TRACKER KUNCI -->
+        <div id="tab-keys" class="tab-pane">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+            <input type="text" id="searchKeyInput" class="form-control" style="max-width: 280px;" placeholder="🔍 Cari kod / order / pembeli...">
+            <select id="statusFilter" class="form-control" style="max-width: 180px;">
+              <option value="all">Semua Status</option>
+              <option value="active">Baki Penuh (2/2)</option>
+              <option value="low">Baki 1 Kali (1/2)</option>
+              <option value="exhausted">Tamat Had (0/2)</option>
+            </select>
+            <span id="totalKeysCount" style="font-size: 0.8rem; color: var(--text-muted);">0 kunci</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Kod Lesen</th>
+                  <th>Order / Pembeli</th>
+                  <th>Status Had</th>
+                  <th>Tarikh Cipta</th>
+                  <th>Tindakan</th>
+                </tr>
+              </thead>
+              <tbody id="keysTableBody">
+                <!-- Rendered dynamically by admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 4: SAMBUNGAN SUPABASE (AWAN) -->
+        <div id="tab-supabase" class="tab-pane">
+          <h4 style="font-size: 0.95rem; margin-bottom: 8px;">⚡ Konfigurasi Supabase Cloud Database</h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
+            Sambungkan database Supabase (Percuma) agar kiraan had 2 kali muat turun dikuatkuasakan secara <strong>dalam talian (Cloud-based)</strong> dan 100% kalis-bypass.
+          </p>
+
+          <div class="form-group">
+            <label class="form-label">Supabase Project URL:</label>
+            <input type="text" id="supabaseUrlInput" class="form-control" placeholder="https://xxxxxxxx.supabase.co">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Supabase Anon Public API Key:</label>
+            <input type="password" id="supabaseKeyInput" class="form-control" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <button id="saveSupabaseBtn" class="btn btn-primary btn-sm">💾 Simpan & Sambung Supabase</button>
+            <button id="testSupabaseBtn" class="btn btn-secondary btn-sm">🔄 Uji Sambungan Awan</button>
+          </div>
+
+          <div class="notice-box" style="margin-bottom: 0;">
+            <div class="notice-icon">💡</div>
+            <div class="notice-text">
+              <h4>Langkah Setup Supabase (1 Minit Sahaja):</h4>
+              <ol style="padding-left: 18px; margin-top: 4px; font-size: 0.8rem; color: var(--text-muted);">
+                <li>Buka <a href="https://supabase.com" target="_blank" style="color: #60a5fa;">supabase.com</a> dan daftar/cipta projek percuma.</li>
+                <li>Pergi ke menu <strong>SQL Editor</strong>, salin isi fail <code>schema.sql</code> dalam projek ini, dan klik <strong>Run</strong>.</li>
+                <li>Pergi ke <strong>Project Settings ➔ API</strong>, salin <em>Project URL</em> & <em>anon public key</em> ke ruangan di atas.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 5: SANDARAN & IMPORT -->
+        <div id="tab-backup" class="tab-pane">
+          <h4 style="font-size: 0.95rem; margin-bottom: 8px;">Simpan Sandaran Rekod Kod Lesen</h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
+            Muat turun salinan data kunci dan baki muat turun dalam format fail JSON untuk simpanan peribadi anda.
+          </p>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;">
+            <button id="exportDataBtn" class="btn btn-secondary">💾 Eksport Fail Sandaran JSON</button>
+            <button id="importDataBtn" class="btn btn-secondary">📥 Import Fail Sandaran JSON</button>
+            <input type="file" id="importFileInput" accept=".json" style="display: none;">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal>Tutup Panel</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/admin.js"></script>
+
+</body>
+</html>
