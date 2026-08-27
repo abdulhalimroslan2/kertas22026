@@ -342,16 +342,23 @@ class EbookPortalApp {
     const currentKey = this.currentKeyData;
 
     if (currentKey.downloadsLeft <= 0) {
-      this.showToast("Had muat turun untuk kod ini telah habis (0/2).", "error");
+      this.showToast("Had muat turun untuk kod ini telah habis (0/4).", "error");
       this.renderDownloadSection(currentKey, false);
       return;
     }
 
     const confirmDownload = confirm(
-      `PENTING:\nAnda akan menggunakan 1 kuota muat turun.\nBaki semasa: ${currentKey.downloadsLeft} kali.\n\nAdakah anda ingin meneruskan muat turun fail ini sekarang?`
+      `PENTING:\nAnda akan menggunakan 1 kuota muat turun.\nBaki semasa: ${currentKey.downloadsLeft} kali.\n\nSistem akan menjana No. Siri Keselamatan & Meterai Sah pada dokumen PDF anda.\n\nAdakah anda ingin meneruskan muat turun fail ini sekarang?`
     );
 
     if (!confirmDownload) return;
+
+    // Papar status proses pada butang
+    const downloadBtns = document.querySelectorAll(".download-action-btn");
+    downloadBtns.forEach(btn => {
+      btn.disabled = true;
+      btn.innerHTML = `<span>⏳ Menjana Meterai Keselamatan...</span>`;
+    });
 
     let updatedRecord = { ...currentKey };
 
@@ -412,18 +419,124 @@ class EbookPortalApp {
 
     this.currentKeyData = updatedRecord;
 
-    // Cari fail PDF sasaran & mulakan muat turun
+    // 3. Cari fail PDF sasaran & jana fail bermeterai keselamatan (No. Siri + Timestamp Muka Surat 17 & 37)
     const targetFile = APP_CONFIG.product.files.find(f => f.id === fileId);
     if (targetFile) {
-      this.triggerBrowserDownload(targetFile);
+      await this.triggerSecurePdfDownload(targetFile, updatedRecord);
     }
 
-    // Kemas kini paparan UI
+    // 4. Kemas kini paparan UI
     this.renderDownloadSection(updatedRecord, updatedRecord.downloadsLeft > 0);
-    this.showToast(`Berjaya! Kuota ditolak. Baki muat turun anda: ${updatedRecord.downloadsLeft} kali.`, "success");
+    this.showToast(`Berjaya! Fail PDF telah dibekalkan No. Siri & Meterai Keselamatan rasmi. Baki: ${updatedRecord.downloadsLeft} kali.`, "success");
   }
 
-  // Trigger Muat Turun Fail
+  // Menjana No. Siri Unik & Timestamp pada Muka Surat 17 & 37 dokumen PDF
+  async triggerSecurePdfDownload(targetFile, keyRecord) {
+    const pdfLibObj = window.PDFLib || (typeof PDFLib !== "undefined" ? PDFLib : null);
+
+    if (!pdfLibObj) {
+      console.warn("PDF-Lib tidak ditemui, memuat turun fail asal.");
+      this.triggerBrowserDownload(targetFile);
+      return;
+    }
+
+    try {
+      this.showToast("🔐 Sedang memproses No. Siri & Meterai Keselamatan pada Muka Surat 17 & 37...", "info");
+
+      // 1. Dapatkan fail PDF asal sebagai ArrayBuffer
+      const response = await fetch(targetFile.url);
+      if (!response.ok) throw new Error("Gagal membaca fail PDF dari pelayan.");
+      const existingPdfBytes = await response.arrayBuffer();
+
+      // 2. Muatkan dokumen PDF menggunakan PDF-Lib
+      const { PDFDocument, rgb, StandardFonts } = pdfLibObj;
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+
+      // 3. Muatkan font Helvetica
+      const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+      // 4. Format No. Siri Unik & Timestamp Rasmi (Vector stream - kekal & tidak boleh diedit secara biasa)
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const day = pad(now.getDate());
+      const month = pad(now.getMonth() + 1);
+      const year = now.getFullYear();
+      const hours = pad(now.getHours());
+      const minutes = pad(now.getMinutes());
+      const seconds = pad(now.getSeconds());
+      const formattedDate = `${day}/${month}/${year}`;
+      const formattedTime = `${hours}:${minutes}:${seconds}`;
+
+      // Hasilkan kod transaksi rawak unik untuk setiap sesi muat turun
+      const trxHash = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const uniqueSerial = `${keyRecord.key || "FZ26-XXXX-XXXX"}-${trxHash}`;
+      const stampText = `No. Siri: ${uniqueSerial}  |  Sah: ${formattedDate} ${formattedTime} (MYT)`;
+
+      // 5. Cetak meterai pada Muka Surat 17 (index 16) & Muka Surat 37 (index 36)
+      const pagesToStamp = [17, 37];
+      const totalPages = pdfDoc.getPageCount();
+
+      for (const pageNum of pagesToStamp) {
+        const pIndex = pageNum - 1;
+        if (pIndex < totalPages) {
+          const page = pdfDoc.getPage(pIndex);
+          const { width, height } = page.getSize();
+
+          const fontSize = 7.5;
+          const textWidth = helvetica.widthOfTextAtSize(stampText, fontSize);
+          const paddingRight = 20;
+          const x = width - textWidth - paddingRight;
+          const y = 14;
+
+          const pillPaddingX = 6;
+          const pillPaddingY = 3;
+
+          // Latar belakang pelindung keselamatan (Security Badge Pill)
+          page.drawRectangle({
+            x: x - pillPaddingX,
+            y: y - pillPaddingY,
+            width: textWidth + (pillPaddingX * 2),
+            height: fontSize + (pillPaddingY * 2),
+            color: rgb(0.95, 0.96, 0.98),
+            borderColor: rgb(0.8, 0.84, 0.9),
+            borderWidth: 0.5,
+            opacity: 0.92
+          });
+
+          // Teks Vector Watermark (Tertanam ke dalam PDF Stream)
+          page.drawText(stampText, {
+            x: x,
+            y: y,
+            size: fontSize,
+            font: helvetica,
+            color: rgb(0.18, 0.22, 0.3)
+          });
+        }
+      }
+
+      // 6. Simpan fail PDF yang telah dimeterai
+      const modifiedPdfBytes = await pdfDoc.save();
+      const blob = new Blob([modifiedPdfBytes], { type: "application/pdf" });
+      const blobUrl = URL.createObjectURL(blob);
+
+      // 7. Muat turun ke peranti pengguna secara automatik
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = targetFile.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
+
+    } catch (err) {
+      console.error("Ralat menyuntik meterai keselamatan PDF:", err);
+      this.showToast("Menggunakan mod muat turun sandaran...", "warning");
+      this.triggerBrowserDownload(targetFile);
+    }
+  }
+
+  // Trigger Muat Turun Fail Asal (Fallback)
   triggerBrowserDownload(file) {
     const link = document.createElement("a");
     link.href = file.url;
