@@ -430,6 +430,65 @@ class EbookPortalApp {
     this.showToast(`Berjaya! Fail PDF telah dibekalkan No. Siri & Meterai Keselamatan rasmi. Baki: ${updatedRecord.downloadsLeft} kali.`, "success");
   }
 
+  // Menjana imej lencana keselamatan resolusi tinggi (Canvas Rasterized PNG)
+  // Menjadikan teks No. Siri & Timestamp tidak boleh diedit / dipilih oleh Adobe Acrobat "Edit Text"
+  generateWatermarkBadgePng(stampText) {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const scale = 4; // 4x Retina Scale untuk kejelasan maksimum tanpa kabur
+    const fontSize = 10 * scale;
+
+    ctx.font = `600 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+    const textMetrics = ctx.measureText(stampText);
+    const textWidth = textMetrics.width;
+    const textHeight = fontSize * 1.3;
+
+    const padX = 10 * scale;
+    const padY = 5 * scale;
+
+    canvas.width = Math.ceil(textWidth + (padX * 2));
+    canvas.height = Math.ceil(textHeight + (padY * 2));
+
+    // Tetapkan semula font selepas saiz kanvas ditukar
+    ctx.font = `600 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+    ctx.textBaseline = "middle";
+
+    // Lukis latar belakang lencana keselamatan (Security Pill Badge)
+    const r = 4 * scale;
+    ctx.fillStyle = "rgba(243, 244, 246, 0.96)";
+    ctx.strokeStyle = "rgba(209, 213, 219, 0.9)";
+    ctx.lineWidth = 1 * scale;
+
+    if (ctx.roundRect) {
+      ctx.beginPath();
+      ctx.roundRect(0, 0, canvas.width, canvas.height, r);
+      ctx.fill();
+      ctx.stroke();
+    } else {
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Lukis teks No. Siri & Tarikh (Rasterized Pixel Graphics - Tidak boleh diedit sebagai teks)
+    ctx.fillStyle = "#1e293b";
+    ctx.fillText(stampText, padX, canvas.height / 2);
+
+    // Tukar kanvas ke Uint8Array (PNG Binary Bytes)
+    const dataUrl = canvas.toDataURL("image/png");
+    const base64 = dataUrl.split(",")[1];
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    return {
+      pngBytes: bytes,
+      width: canvas.width / scale,
+      height: canvas.height / scale
+    };
+  }
+
   // Menjana No. Siri Unik & Timestamp pada Muka Surat 17 & 37 dokumen PDF
   async triggerSecurePdfDownload(targetFile, keyRecord) {
     const pdfLibObj = window.PDFLib || (typeof PDFLib !== "undefined" ? PDFLib : null);
@@ -441,7 +500,7 @@ class EbookPortalApp {
     }
 
     try {
-      this.showToast("🔐 Sedang memproses No. Siri & Meterai Keselamatan pada Muka Surat 17 & 37...", "info");
+      this.showToast("🔐 Menyuntik Meterai Keselamatan (Muka Surat 17 & 37)...", "info");
 
       // 1. Dapatkan fail PDF asal sebagai ArrayBuffer
       const response = await fetch(targetFile.url);
@@ -449,13 +508,10 @@ class EbookPortalApp {
       const existingPdfBytes = await response.arrayBuffer();
 
       // 2. Muatkan dokumen PDF menggunakan PDF-Lib
-      const { PDFDocument, rgb, StandardFonts } = pdfLibObj;
+      const { PDFDocument } = pdfLibObj;
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
-      // 3. Muatkan font Helvetica
-      const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
-      // 4. Format No. Siri Unik & Timestamp Rasmi (Vector stream - kekal & tidak boleh diedit secara biasa)
+      // 3. Format No. Siri Unik & Timestamp Rasmi
       const now = new Date();
       const pad = (n) => String(n).padStart(2, "0");
       const day = pad(now.getDate());
@@ -472,7 +528,11 @@ class EbookPortalApp {
       const uniqueSerial = `${keyRecord.key || "FZ26-XXXX-XXXX"}-${trxHash}`;
       const stampText = `No. Siri: ${uniqueSerial}  |  Sah: ${formattedDate} ${formattedTime} (MYT)`;
 
-      // 5. Cetak meterai pada Muka Surat 17 (index 16) & Muka Surat 37 (index 36)
+      // 4. Jana Imej Lencana Keselamatan (Raster PNG - Kalis Edit Adobe Acrobat)
+      const badge = this.generateWatermarkBadgePng(stampText);
+      const embeddedBadge = await pdfDoc.embedPng(badge.pngBytes);
+
+      // 5. Suntik imej meterai pada Muka Surat 17 (index 16) & Muka Surat 37 (index 36)
       const pagesToStamp = [17, 37];
       const totalPages = pdfDoc.getPageCount();
 
@@ -482,39 +542,21 @@ class EbookPortalApp {
           const page = pdfDoc.getPage(pIndex);
           const { width, height } = page.getSize();
 
-          const fontSize = 7.5;
-          const textWidth = helvetica.widthOfTextAtSize(stampText, fontSize);
           const paddingRight = 20;
-          const x = width - textWidth - paddingRight;
+          const x = width - badge.width - paddingRight;
           const y = 14;
 
-          const pillPaddingX = 6;
-          const pillPaddingY = 3;
-
-          // Latar belakang pelindung keselamatan (Security Badge Pill)
-          page.drawRectangle({
-            x: x - pillPaddingX,
-            y: y - pillPaddingY,
-            width: textWidth + (pillPaddingX * 2),
-            height: fontSize + (pillPaddingY * 2),
-            color: rgb(0.95, 0.96, 0.98),
-            borderColor: rgb(0.8, 0.84, 0.9),
-            borderWidth: 0.5,
-            opacity: 0.92
-          });
-
-          // Teks Vector Watermark (Tertanam ke dalam PDF Stream)
-          page.drawText(stampText, {
+          page.drawImage(embeddedBadge, {
             x: x,
             y: y,
-            size: fontSize,
-            font: helvetica,
-            color: rgb(0.18, 0.22, 0.3)
+            width: badge.width,
+            height: badge.height,
+            opacity: 0.98
           });
         }
       }
 
-      // 6. Simpan fail PDF yang telah dimeterai
+      // 6. Simpan fail PDF yang telah dimeterai secara kekal
       const modifiedPdfBytes = await pdfDoc.save();
       const blob = new Blob([modifiedPdfBytes], { type: "application/pdf" });
       const blobUrl = URL.createObjectURL(blob);
