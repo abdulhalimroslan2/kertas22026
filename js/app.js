@@ -507,9 +507,9 @@ class EbookPortalApp {
       if (!response.ok) throw new Error("Gagal membaca fail PDF dari pelayan.");
       const existingPdfBytes = await response.arrayBuffer();
 
-      // 2. Muatkan dokumen PDF menggunakan PDF-Lib
+      // 2. Muatkan dokumen PDF menggunakan PDF-Lib (dengan sokongan penyulitan)
       const { PDFDocument } = pdfLibObj;
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const pdfDoc = await PDFDocument.load(existingPdfBytes, { ignoreEncryption: true });
 
       // 3. Format No. Siri Unik & Timestamp Rasmi
       const now = new Date();
