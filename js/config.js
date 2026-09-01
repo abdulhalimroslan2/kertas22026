@@ -30,9 +30,9 @@ const APP_CONFIG = {
       {
         id: "skema_jawapan",
         name: "Skema & Analisis Jawapan Lengkap Kertas 2",
-        description: "Panduan pemarkahan terperinci, tip skor A+, dan jalan kerja langkah demi langkah",
+        description: "Panduan pemarkahan terperinci, tip skor A+, dan jalan kerja langkah demi langkah (Edisi ERATA Terkini)",
         filename: "Skema_Jawapan_Lengkap_Fizik_2026.pdf",
-        size: "4.0 MB",
+        size: "6.5 MB",
         type: "pdf",
         url: "assets/skema-jawapan-lengkap-fizik-2026.pdf",
         badge: "Skema & Tip A+"
