@@ -1,6 +1,6 @@
 /**
- * Portal Muat Turun E-Book Fizik SPM 2026
- * Panel Pengurusan Penjual (Admin Generator, Supabase Cloud & Key Manager)
+ * SPM 2026 Physics E-Book Portal
+ * Developer Administration & License Key Management Engine
  */
 
 class EbookAdminManager {
@@ -44,7 +44,7 @@ class EbookAdminManager {
       });
     });
 
-    // Penjana Kunci
+    // Key Generators
     const generateSingleBtn = document.getElementById("generateSingleBtn");
     if (generateSingleBtn) {
       generateSingleBtn.addEventListener("click", () => this.generateSingleKey());
@@ -55,7 +55,7 @@ class EbookAdminManager {
       generateBulkBtn.addEventListener("click", () => this.generateBulkKeys());
     }
 
-    // Salin Mesej
+    // Copy Actions
     const copyShopeeMsgBtn = document.getElementById("copyShopeeMsgBtn");
     if (copyShopeeMsgBtn) {
       copyShopeeMsgBtn.addEventListener("click", () => this.copyShopeeMessage());
@@ -66,19 +66,19 @@ class EbookAdminManager {
       copyOnlyKeyBtn.addEventListener("click", () => this.copyOnlyKey());
     }
 
-    // Penapis Carian
+    // Search & Filter
     const searchKeyInput = document.getElementById("searchKeyInput");
     const statusFilter = document.getElementById("statusFilter");
     if (searchKeyInput) searchKeyInput.addEventListener("input", () => this.renderKeysTable());
     if (statusFilter) statusFilter.addEventListener("change", () => this.renderKeysTable());
 
-    // Supabase Settings Tab
+    // Supabase Settings
     const saveSupabaseBtn = document.getElementById("saveSupabaseBtn");
     const testSupabaseBtn = document.getElementById("testSupabaseBtn");
     if (saveSupabaseBtn) saveSupabaseBtn.addEventListener("click", () => this.saveSupabaseSettings());
     if (testSupabaseBtn) testSupabaseBtn.addEventListener("click", () => this.testSupabaseConnection());
 
-    // Eksport & Import
+    // Export & Import
     const exportDataBtn = document.getElementById("exportDataBtn");
     const importDataBtn = document.getElementById("importDataBtn");
     const importFileInput = document.getElementById("importFileInput");
@@ -101,7 +101,7 @@ class EbookAdminManager {
     if (keyInput) keyInput.value = savedKey;
   }
 
-  // Simpan Tetapan Supabase
+  // Save Supabase Settings
   saveSupabaseSettings() {
     const urlInput = document.getElementById("supabaseUrlInput");
     const keyInput = document.getElementById("supabaseKeyInput");
@@ -116,11 +116,11 @@ class EbookAdminManager {
       window.portalApp.initSupabaseClient();
     }
 
-    window.portalApp.showToast("Tetapan Supabase berjaya disimpan!", "success");
+    window.portalApp.showToast("Supabase configuration saved successfully.", "success");
     this.renderKeysTable();
   }
 
-  // Uji Sambungan Supabase
+  // Test Supabase Cloud Connection
   async testSupabaseConnection() {
     const urlInput = document.getElementById("supabaseUrlInput");
     const keyInput = document.getElementById("supabaseKeyInput");
@@ -129,22 +129,22 @@ class EbookAdminManager {
     const key = keyInput ? keyInput.value.trim() : "";
 
     if (!url || !key) {
-      window.portalApp.showToast("Sila masukkan Project URL dan Anon Key terlebih dahulu.", "error");
+      window.portalApp.showToast("Please enter both Project URL and Anon API Key.", "error");
       return;
     }
 
     try {
-      window.portalApp.showToast("Menguji sambungan ke Supabase...", "warning");
+      window.portalApp.showToast("Testing Supabase Cloud connection...", "info");
       const client = window.supabase.createClient(url, key);
       const { data, error } = await client.from("license_keys").select("count", { count: "exact", head: true });
 
       if (error) {
-        window.portalApp.showToast(`Gagal: ${error.message}`, "error");
+        window.portalApp.showToast(`Connection failed: ${error.message}`, "error");
       } else {
-        window.portalApp.showToast("🟢 Sambungan Supabase Cloud BERJAYA!", "success");
+        window.portalApp.showToast("Supabase Cloud connection SUCCESSFUL.", "success");
       }
     } catch (err) {
-      window.portalApp.showToast(`Ralat: ${err.message}`, "error");
+      window.portalApp.showToast(`Error: ${err.message}`, "error");
     }
   }
 
@@ -199,10 +199,10 @@ class EbookAdminManager {
       if (pinError) pinError.style.display = "none";
 
       this.showAdminModal();
-      window.portalApp.showToast("Log masuk Admin berjaya!", "success");
+      window.portalApp.showToast("Developer authenticated successfully.", "success");
     } else {
       if (pinError) {
-        pinError.innerText = "Kata laluan salah. Sila cuba lagi.";
+        pinError.innerText = "Incorrect password. Please try again.";
         pinError.style.display = "block";
       }
     }
@@ -237,7 +237,7 @@ class EbookAdminManager {
     return `${prefix}-${part1}-${part2}`;
   }
 
-  // Jana Kunci Tunggal (Disimpan ke Supabase & Local Cache)
+  // Generate Single License Key
   async generateSingleKey() {
     const orderInput = document.getElementById("singleOrderInput");
     const buyerInput = document.getElementById("singleBuyerInput");
@@ -253,8 +253,8 @@ class EbookAdminManager {
 
     const keyRecord = {
       key: newKey,
-      orderId: orderId || "Manual Shopee",
-      customerName: customerName || "Pelanggan Shopee",
+      orderId: orderId || "Direct Order",
+      customerName: customerName || "Customer",
       downloadsLeft: maxDownloads,
       maxDownloads: maxDownloads,
       downloadCount: 0,
@@ -263,7 +263,7 @@ class EbookAdminManager {
       status: "active"
     };
 
-    // 1. Simpan ke Supabase jika aktif
+    // 1. Save to Supabase Cloud
     if (window.portalApp.isCloudActive && window.portalApp.supabase) {
       try {
         const { error } = await window.portalApp.supabase
@@ -279,34 +279,32 @@ class EbookAdminManager {
           }]);
 
         if (error) {
-          console.warn("Ralat insert Supabase:", error);
-        } else {
-          console.log("Kunci berjaya disimpan ke Supabase Cloud.");
+          console.warn("Supabase insert error:", error);
         }
       } catch (err) {
-        console.warn("Ralat Supabase insert:", err);
+        console.warn("Supabase insert exception:", err);
       }
     }
 
-    // 2. Simpan ke Local Vault
+    // 2. Save to local vault
     const vault = this.getVault();
     vault.keys.unshift(keyRecord);
     this.saveVault(vault);
 
     this.displayGeneratedKey(keyRecord);
-    window.portalApp.showToast(`Kunci ${newKey} sedia untuk Shopee Chat!`, "success");
+    window.portalApp.showToast(`License key ${newKey} created successfully.`, "success");
 
     if (orderInput) orderInput.value = "";
     if (buyerInput) buyerInput.value = "";
   }
 
-  // Jana Kunci Pukal
+  // Generate Bulk Keys
   async generateBulkKeys() {
     const countInput = document.getElementById("bulkCountInput");
     const limitInput = document.getElementById("bulkLimitInput");
     const prefixInput = document.getElementById("bulkPrefixInput");
 
-    const count = Math.min(Math.max(parseInt(countInput ? countInput.value : 5) || 5, 1), 50);
+    const count = Math.min(Math.max(parseInt(countInput ? countInput.value : 10) || 10, 1), 50);
     const maxDownloads = parseInt(limitInput ? limitInput.value : 4) || 4;
     const prefix = (prefixInput && prefixInput.value.trim()) ? prefixInput.value.trim().toUpperCase() : "FZ26";
 
@@ -319,7 +317,7 @@ class EbookAdminManager {
       const keyRecord = {
         key: newKey,
         orderId: `Bulk-${Date.now().toString().slice(-4)}-${i + 1}`,
-        customerName: "Stok Shopee",
+        customerName: "Inventory Batch",
         downloadsLeft: maxDownloads,
         maxDownloads: maxDownloads,
         downloadCount: 0,
@@ -344,12 +342,12 @@ class EbookAdminManager {
       try {
         await window.portalApp.supabase.from("license_keys").insert(supabasePayload);
       } catch (err) {
-        console.warn("Ralat bulk insert Supabase:", err);
+        console.warn("Bulk insert error:", err);
       }
     }
 
     this.saveVault(vault);
-    window.portalApp.showToast(`${count} Kod Lesen pukal berjaya disimpan ke sistem!`, "success");
+    window.portalApp.showToast(`${count} bulk license keys generated and saved.`, "success");
 
     const resultBox = document.getElementById("bulkResultBox");
     const resultTextarea = document.getElementById("bulkResultTextarea");
@@ -372,21 +370,21 @@ class EbookAdminManager {
       const redeemUrl = `${baseUrl}?key=${keyRecord.key}`;
 
       const messageTemplate = 
-`Salam sejahtera & Terima kasih atas pembelian di Shopee kami! ⭐⭐⭐⭐⭐
+`Thank you for your order at Sir Halim Store!
 
-Berikut adalah pautan & Kod Lesen untuk memuat turun E-Book Fizik Percubaan SPM 2026 anda:
+Here is your official access link and License Key to download your Physics SPM 2026 Trial E-Book:
 
-🔗 Pautan Portal: ${redeemUrl}
-🔑 Kod Lesen Anda: ${keyRecord.key}
-📦 Kandungan: 
-1. E-Book Soalan Kertas 2 Topikal Percubaan 2026 (PDF)
-2. Skema & Panduan Jawapan Lengkap + Tip A+ (PDF)
+Portal Link: ${redeemUrl}
+Your License Key: ${keyRecord.key}
+Contents:
+1. Paper 2 Topical State Trial Question Module 2026 (PDF)
+2. Comprehensive Marking Scheme & Analytical Solutions (PDF)
 
-⚠️ PERINGATAN PENTING:
-- Kod lesen ini diberikan ${keyRecord.maxDownloads || 4} KALI MUAT TURUN (cth: 2x Soalan + 2x Skema) bagi kemudahan anda.
-- Sila terus simpan fail PDF ke peranti (Google Drive / Files / Storan Peranti) setelah selesai muat turun.
+IMPORTANT INSTRUCTIONS:
+- This license key includes ${keyRecord.maxDownloads || 4} DOWNLOAD ALLOCATIONS (e.g. 2x Questions + 2x Scheme) for your convenience.
+- Please save your downloaded PDF files directly to your device storage / Google Drive / iCloud Drive.
 
-Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizik 2026! 🎯`;
+Wishing you great success in your SPM 2026 Physics examination!`;
 
       textarea.value = messageTemplate;
       textarea.setAttribute("data-key", keyRecord.key);
@@ -397,7 +395,7 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
     const textarea = document.getElementById("shopeeTemplateTextarea");
     if (textarea && textarea.value) {
       navigator.clipboard.writeText(textarea.value).then(() => {
-        window.portalApp.showToast("Mesej Shopee telah disalin ke Clipboard! Sedia untuk paste di Shopee Chat.", "success");
+        window.portalApp.showToast("Message template copied to clipboard.", "success");
       });
     }
   }
@@ -406,12 +404,12 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
     const keyDisplay = document.getElementById("newKeyCodeDisplay");
     if (keyDisplay && keyDisplay.innerText) {
       navigator.clipboard.writeText(keyDisplay.innerText.trim()).then(() => {
-        window.portalApp.showToast(`Kod Lesen ${keyDisplay.innerText.trim()} telah disalin!`, "success");
+        window.portalApp.showToast(`License key ${keyDisplay.innerText.trim()} copied.`, "success");
       });
     }
   }
 
-  // Render Jadual Pengurusan Kunci Lesen (Ambil dari Supabase jika ada)
+  // Render License Keys Table
   async renderKeysTable() {
     const tbody = document.getElementById("keysTableBody");
     const searchInput = document.getElementById("searchKeyInput");
@@ -422,7 +420,6 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
 
     let keys = [];
 
-    // Cuba dapatkan senarai dari Supabase
     if (window.portalApp.isCloudActive && window.portalApp.supabase) {
       try {
         const { data, error } = await window.portalApp.supabase
@@ -437,7 +434,7 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
             orderId: d.order_id,
             customerName: d.customer_name,
             downloadsLeft: d.downloads_left,
-            maxDownloads: d.max_downloads || 2,
+            maxDownloads: d.max_downloads || 4,
             downloadCount: d.download_count || 0,
             status: d.status,
             createdAt: d.created_at,
@@ -445,11 +442,10 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
           }));
         }
       } catch (e) {
-        console.warn("Gagal load Supabase keys:", e);
+        console.warn("Failed to load Supabase keys:", e);
       }
     }
 
-    // Fallback ke Local Vault jika senarai kosong atau offline
     if (keys.length === 0) {
       const vault = this.getVault();
       keys = vault.keys || [];
@@ -457,9 +453,9 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
 
     const filterVal = filterSelect ? filterSelect.value : "all";
     if (filterVal === "active") {
-      keys = keys.filter(k => k.downloadsLeft > 0 && k.status === "active");
+      keys = keys.filter(k => k.downloadsLeft >= 3 && k.status === "active");
     } else if (filterVal === "low") {
-      keys = keys.filter(k => k.downloadsLeft === 1);
+      keys = keys.filter(k => k.downloadsLeft >= 1 && k.downloadsLeft <= 2);
     } else if (filterVal === "exhausted") {
       keys = keys.filter(k => k.downloadsLeft <= 0 || k.status === "exhausted");
     }
@@ -474,14 +470,14 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
     }
 
     if (totalKeysCountEl) {
-      totalKeysCountEl.innerText = `${keys.length} kunci disenaraikan`;
+      totalKeysCountEl.innerText = `${keys.length} keys`;
     }
 
     if (keys.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="5" style="text-align:center; padding: 24px; color: var(--text-dim);">
-            Tiada kod lesen ditemui padanan carian anda.
+          <td colspan="5" style="text-align:center; padding: 24px; color: var(--text-tertiary);">
+            No license keys matching your search criteria.
           </td>
         </tr>
       `;
@@ -490,38 +486,38 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
 
     tbody.innerHTML = keys.map(k => {
       let badgeClass = "badge-green";
-      let statusText = `Baki ${k.downloadsLeft}/${k.maxDownloads || 2}`;
+      let statusText = `${k.downloadsLeft}/${k.maxDownloads || 4} Left`;
 
-      if (k.downloadsLeft === 1) {
+      if (k.downloadsLeft >= 1 && k.downloadsLeft <= 2) {
         badgeClass = "badge-amber";
       } else if (k.downloadsLeft <= 0) {
         badgeClass = "badge-red";
-        statusText = "Habis (0/2)";
+        statusText = "Exhausted (0/4)";
       }
 
-      const dateStr = k.createdAt ? new Date(k.createdAt).toLocaleDateString("ms-MY", { day: "2-digit", month: "short", year: "numeric" }) : "-";
+      const dateStr = k.createdAt ? new Date(k.createdAt).toLocaleDateString("en-MY", { day: "2-digit", month: "short", year: "numeric" }) : "-";
 
       return `
         <tr>
           <td class="table-key">${k.key}</td>
           <td>
             <div style="font-weight:600;">${k.orderId || '-'}</div>
-            <div style="font-size:0.75rem; color:var(--text-dim);">${k.customerName || '-'}</div>
+            <div style="font-size:12px; color:var(--text-tertiary);">${k.customerName || '-'}</div>
           </td>
           <td>
             <span class="table-badge ${badgeClass}">${statusText}</span>
           </td>
-          <td style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</td>
+          <td style="font-size:12px; color:var(--text-muted);">${dateStr}</td>
           <td>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button class="btn btn-secondary btn-sm" onclick="window.adminManager.topUpKey('${k.key}')" title="Tambah +1 Kuota Download">
-                ➕ +1 Kuota
+              <button class="btn btn-secondary btn-sm" onclick="window.adminManager.topUpKey('${k.key}')" title="Add +1 Quota">
+                +1 Quota
               </button>
-              <button class="btn btn-secondary btn-sm" onclick="window.adminManager.copyDirectLink('${k.key}')" title="Salin Pautan Penebusan">
-                🔗 Salin Link
+              <button class="btn btn-secondary btn-sm" onclick="window.adminManager.copyDirectLink('${k.key}')" title="Copy Direct Link">
+                Copy Link
               </button>
-              <button class="btn btn-secondary btn-sm" style="color:#f87171;" onclick="window.adminManager.deleteKey('${k.key}')" title="Padam Kunci">
-                🗑️
+              <button class="btn btn-secondary btn-sm" style="color:#ff3b30;" onclick="window.adminManager.deleteKey('${k.key}')" title="Delete Key">
+                Delete
               </button>
             </div>
           </td>
@@ -530,7 +526,7 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
     }).join("");
   }
 
-  // Tambah / Reset Kuota Muat Turun
+  // Top Up Quota
   async topUpKey(keyString) {
     if (window.portalApp.isCloudActive && window.portalApp.supabase) {
       try {
@@ -549,7 +545,7 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
           })
           .ilike("key", keyString);
       } catch (err) {
-        console.warn("Ralat Supabase topup:", err);
+        console.warn("Supabase topup error:", err);
       }
     }
 
@@ -561,7 +557,7 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
       this.saveVault(vault);
     }
 
-    window.portalApp.showToast(`Kuota untuk ${keyString} telah ditambah (+1)!`, "success");
+    window.portalApp.showToast(`Quota for ${keyString} incremented (+1).`, "success");
     this.renderKeysTable();
   }
 
@@ -569,12 +565,12 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
     const baseUrl = window.location.origin + window.location.pathname;
     const link = `${baseUrl}?key=${keyString}`;
     navigator.clipboard.writeText(link).then(() => {
-      window.portalApp.showToast(`Pautan ${keyString} telah disalin!`, "success");
+      window.portalApp.showToast(`Link for ${keyString} copied.`, "success");
     });
   }
 
   async deleteKey(keyString) {
-    if (!confirm(`Adakah anda pasti ingin memadamkan Kod Lesen ${keyString}?`)) return;
+    if (!confirm(`Are you sure you want to permanently delete License Key ${keyString}?`)) return;
 
     if (window.portalApp.isCloudActive && window.portalApp.supabase) {
       try {
@@ -583,14 +579,14 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
           .delete()
           .ilike("key", keyString);
       } catch (err) {
-        console.warn("Ralat Supabase delete:", err);
+        console.warn("Supabase delete error:", err);
       }
     }
 
     const vault = this.getVault();
     vault.keys = vault.keys.filter(k => k.key !== keyString);
     this.saveVault(vault);
-    window.portalApp.showToast(`Kod ${keyString} telah dipadamkan.`, "warning");
+    window.portalApp.showToast(`Key ${keyString} deleted.`, "warning");
     this.renderKeysTable();
   }
 
@@ -600,10 +596,10 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `backup-kunci-fizik-ebook-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `backup-physics-spm-keys-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    window.portalApp.showToast("Fail sandaran JSON berjaya dimuat turun.", "success");
+    window.portalApp.showToast("JSON backup downloaded successfully.", "success");
   }
 
   importData(event) {
@@ -616,12 +612,12 @@ Selamat mengulang kaji dan semoga mendapat keputusan A+ Cemerlang dalam SPM Fizi
         const importedVault = JSON.parse(e.target.result);
         if (importedVault && Array.isArray(importedVault.keys)) {
           this.saveVault(importedVault);
-          window.portalApp.showToast(`Berjaya memuat naik ${importedVault.keys.length} rekod kunci!`, "success");
+          window.portalApp.showToast(`Successfully imported ${importedVault.keys.length} license records.`, "success");
         } else {
-          window.portalApp.showToast("Format fail JSON tidak sah.", "error");
+          window.portalApp.showToast("Invalid JSON backup file format.", "error");
         }
       } catch (err) {
-        window.portalApp.showToast("Gagal membaca fail sandaran.", "error");
+        window.portalApp.showToast("Failed to read backup file.", "error");
       }
     };
     reader.readAsText(file);

@@ -1,7 +1,7 @@
 /**
- * Portal Muat Turun E-Book Fizik SPM 2026
- * Logik Utama: Penebusan Kod, Semakan Had Muat Turun (2x) & Muat Turun Fail
- * Disokong oleh Supabase Cloud Database & Fallback Local Vault
+ * SPM 2026 Physics E-Book Download Portal
+ * Core Application Engine: Key Verification, 4x Download Quotas & PDF Delivery
+ * Backed by Supabase Cloud Database & Offline Vault
  */
 
 class EbookPortalApp {
@@ -17,7 +17,7 @@ class EbookPortalApp {
     this.initStorage();
     this.initSupabaseClient();
 
-    // Safari kadangkala lambat memuatkan SDK CDN — cuba semula jika perlu
+    // Retry initializing Supabase if CDN script takes longer
     if (!this.isCloudActive && !window.supabase) {
       await new Promise(resolve => setTimeout(resolve, 800));
       this.initSupabaseClient();
@@ -28,15 +28,11 @@ class EbookPortalApp {
     this.renderProductInfo();
   }
 
-  // Inisialisasi Klien Supabase (Safari-compatible)
+  // Initialize Supabase Cloud Client
   initSupabaseClient() {
-    const badgeEl = document.getElementById("cloudStatusBadge");
-
-    // Sentiasa gunakan konfigurasi hardcoded terlebih dahulu
     const configUrl = (APP_CONFIG.supabase && APP_CONFIG.supabase.url) || "";
     const configKey = (APP_CONFIG.supabase && APP_CONFIG.supabase.anonKey) || "";
 
-    // Fallback ke localStorage hanya jika config tidak ada
     let supaUrl = configUrl;
     let supaKey = configKey;
 
@@ -45,8 +41,7 @@ class EbookPortalApp {
         supaUrl = localStorage.getItem("supabase_url") || "";
         supaKey = localStorage.getItem("supabase_anon_key") || "";
       } catch (e) {
-        // Safari Private Browsing boleh menyekat localStorage
-        console.warn("localStorage tidak tersedia (Safari Private Browsing?):", e);
+        console.warn("Unable to access localStorage:", e);
       }
     }
 
@@ -54,32 +49,17 @@ class EbookPortalApp {
       try {
         this.supabase = window.supabase.createClient(supaUrl.trim(), supaKey.trim());
         this.isCloudActive = true;
-        if (badgeEl) {
-          badgeEl.innerHTML = "🟢 Cloud: Supabase Aktif";
-          badgeEl.className = "meta-tag price-tag";
-        }
-        console.log("Supabase Cloud Client berjaya disambung.");
+        console.log("Supabase Cloud Client connected successfully.");
       } catch (err) {
-        console.warn("Gagal menyambung ke Supabase:", err);
+        console.warn("Failed to connect to Supabase:", err);
         this.isCloudActive = false;
-        if (badgeEl) {
-          badgeEl.innerHTML = "🟡 Mod: Setempat (Local)";
-          badgeEl.className = "meta-tag";
-        }
       }
     } else {
       this.isCloudActive = false;
-      if (badgeEl) {
-        badgeEl.innerHTML = "🟡 Mod: Setempat (Local)";
-        badgeEl.className = "meta-tag";
-      }
-      if (!window.supabase) {
-        console.error("Supabase SDK tidak dimuat. Semak sambungan internet.");
-      }
     }
   }
 
-  // Inisialisasi storan tempatan (dengan data awal jika kosong)
+  // Initialize local vault storage
   initStorage() {
     try {
       const existing = localStorage.getItem(this.storageKey);
@@ -95,8 +75,7 @@ class EbookPortalApp {
         localStorage.setItem(this.storageKey, JSON.stringify(initialVault));
       }
     } catch (e) {
-      // Safari Private Browsing atau localStorage penuh
-      console.warn("Tidak dapat mengakses localStorage:", e);
+      console.warn("Unable to access localStorage:", e);
     }
   }
 
@@ -105,7 +84,7 @@ class EbookPortalApp {
       const raw = localStorage.getItem(this.storageKey);
       return raw ? JSON.parse(raw) : { keys: [], settings: {} };
     } catch (e) {
-      console.warn("Ralat membaca storan tempatan:", e);
+      console.warn("Error reading local vault:", e);
       return { keys: [], settings: {} };
     }
   }
@@ -115,18 +94,18 @@ class EbookPortalApp {
       localStorage.setItem(this.storageKey, JSON.stringify(vault));
       window.dispatchEvent(new CustomEvent("vaultUpdated", { detail: vault }));
     } catch (e) {
-      console.warn("Ralat menyimpan storan tempatan:", e);
+      console.warn("Error saving local vault:", e);
     }
   }
 
-  // Papar maklumat produk pada antaramuka
+  // Render product details to the DOM
   renderProductInfo() {
     const titleEl = document.getElementById("productTitle");
     const subTitleEl = document.getElementById("productSubtitle");
     const priceEl = document.getElementById("productPrice");
 
-    if (titleEl) titleEl.innerText = APP_CONFIG.product.title;
-    if (subTitleEl) subTitleEl.innerText = APP_CONFIG.product.subtitle;
+    if (titleEl) titleEl.innerText = "Redeem your Physics SPM 2026 module.";
+    if (subTitleEl) subTitleEl.innerText = "Enter the 12-character license key provided in your order confirmation to download the complete question paper and detailed marking scheme.";
     if (priceEl) priceEl.innerText = APP_CONFIG.product.price;
   }
 
@@ -169,7 +148,7 @@ class EbookPortalApp {
     }
   }
 
-  // Pengesahan Kod Lesen (Supabase Cloud atau Local Vault)
+  // Handle License Key Verification
   async handleVerifyKey() {
     const input = document.getElementById("licenseKeyInput");
     const downloadSection = document.getElementById("downloadSection");
@@ -179,19 +158,19 @@ class EbookPortalApp {
     const rawKey = input.value.trim().toUpperCase();
 
     if (!rawKey) {
-      this.showStatus("Sila masukkan Kod Lesen yang anda terima di Shopee Chat.", "error");
+      this.showStatus("Please enter the license key provided in your order confirmation.", "error");
       return;
     }
 
     if (verifyBtn) {
       verifyBtn.disabled = true;
-      verifyBtn.innerHTML = `<span>⏳ Menyemak...</span>`;
+      verifyBtn.innerHTML = `<span>Verifying...</span>`;
     }
 
     let keyRecord = null;
 
     try {
-      // 1. Semakan Secara Dalam Talian Melalui Supabase Cloud
+      // 1. Verify online via Supabase Cloud
       if (this.isCloudActive && this.supabase) {
         const { data, error } = await this.supabase
           .from("license_keys")
@@ -200,7 +179,7 @@ class EbookPortalApp {
           .maybeSingle();
 
         if (error) {
-          console.warn("Ralat query Supabase, mencuba fallback tempatan:", error);
+          console.warn("Supabase query error, attempting local fallback:", error);
         } else if (data) {
           keyRecord = {
             id: data.id,
@@ -217,7 +196,7 @@ class EbookPortalApp {
         }
       }
 
-      // 2. Fallback Semakan Tempatan (Jika belum online / offline)
+      // 2. Offline / Local fallback verification
       if (!keyRecord) {
         const vault = this.getVault();
         const localMatch = vault.keys.find(k => k.key.toUpperCase() === rawKey);
@@ -227,29 +206,28 @@ class EbookPortalApp {
       }
 
       if (!keyRecord) {
-        this.showStatus("Kod Lesen tidak sah atau tidak wujud dalam sistem. Sila semak semula mesej di Shopee Chat anda.", "error");
+        this.showStatus("The license key entered is invalid. Please check your order details and try again.", "error");
         if (downloadSection) downloadSection.style.display = "none";
         return;
       }
 
       this.currentKeyData = keyRecord;
 
-      // Semak baki muat turun
+      // Check download quota
       if (keyRecord.downloadsLeft <= 0 || keyRecord.status === "exhausted") {
-        this.showStatus("Kod Lesen ini telah mencapai had maksimum muat turun (4 kali). Akses muat turun telah dikunci.", "warning");
+        this.showStatus("This license key has reached its maximum download allocation (4 of 4 used). Access has been locked.", "warning");
         this.renderDownloadSection(keyRecord, false);
         return;
       }
 
       if (keyRecord.status === "disabled") {
-        this.showStatus("Kod Lesen ini telah dinyahaktifkan oleh pihak pentadbir. Sila hubungi penjual Shopee.", "error");
+        this.showStatus("This license key has been deactivated by administration. Please contact support.", "error");
         if (downloadSection) downloadSection.style.display = "none";
         return;
       }
 
-      // Kod Sah & Aktif
-      const cloudNotice = this.isCloudActive ? " [Disahkan oleh Supabase Awan]" : "";
-      this.showStatus(`Kod Lesen Sah!${cloudNotice} Anda mempunyai baki ${keyRecord.downloadsLeft} daripada ${keyRecord.maxDownloads || 4} kali muat turun.`, "success");
+      // Valid & Active License
+      this.showStatus(`License verified. You have ${keyRecord.downloadsLeft} of ${keyRecord.maxDownloads || 4} downloads remaining.`, "success");
       this.renderDownloadSection(keyRecord, true);
 
       setTimeout(() => {
@@ -257,17 +235,17 @@ class EbookPortalApp {
       }, 200);
 
     } catch (err) {
-      console.error("Ralat pengesahan:", err);
-      this.showStatus("Berlaku masalah semasa menyemak kod. Sila cuba sebentar lagi.", "error");
+      console.error("Verification error:", err);
+      this.showStatus("An error occurred while verifying the license key. Please try again.", "error");
     } finally {
       if (verifyBtn) {
         verifyBtn.disabled = false;
-        verifyBtn.innerHTML = `<span>Sahkan & Tebus</span> ➔`;
+        verifyBtn.innerHTML = `<span>Redeem</span> &rsaquo;`;
       }
     }
   }
 
-  // Papar bahagian muat turun dengan fail & baki terkini
+  // Render Unlocked Download Center
   renderDownloadSection(keyRecord, canDownload = true) {
     const downloadSection = document.getElementById("downloadSection");
     if (!downloadSection) return;
@@ -283,7 +261,7 @@ class EbookPortalApp {
     if (quotaChip) {
       const left = keyRecord.downloadsLeft;
       const max = keyRecord.maxDownloads || 4;
-      quotaChip.innerHTML = `<span>⚡ Baki Muat Turun: ${left} / ${max} kali</span>`;
+      quotaChip.innerHTML = `<span>Downloads Remaining: ${left} of ${max}</span>`;
       
       quotaChip.className = "quota-chip";
       if (left >= 3) quotaChip.classList.add("safe");
@@ -293,11 +271,11 @@ class EbookPortalApp {
 
     if (quotaHint) {
       if (keyRecord.downloadsLeft >= 3) {
-        quotaHint.innerText = "Anda mempunyai 4 kali muat turun (contoh: 2x Versi Soalan & 2x Versi Skema).";
+        quotaHint.innerText = "You have 4 total downloads allocated (e.g. 2x Questions & 2x Scheme).";
       } else if (keyRecord.downloadsLeft >= 1) {
-        quotaHint.innerText = `Baki tinggal ${keyRecord.downloadsLeft} kali muat turun lagi.`;
+        quotaHint.innerText = `${keyRecord.downloadsLeft} downloads remaining.`;
       } else {
-        quotaHint.innerText = "Had muat turun (4 kali) telah habis. Sila simpan salinan fail anda.";
+        quotaHint.innerText = "Download quota reached (0 of 4 remaining). Please save your downloaded copies.";
       }
     }
 
@@ -312,8 +290,8 @@ class EbookPortalApp {
           <div class="download-card">
             <div>
               <div class="card-top">
-                <span class="file-type-badge ${isSkema ? 'skema' : ''}">${file.badge || 'PDF E-Book'}</span>
-                <span class="file-size-badge">📦 ${file.size}</span>
+                <span class="file-type-badge ${isSkema ? 'skema' : ''}">${file.badge || 'PDF Document'}</span>
+                <span class="file-size-badge">${file.size}</span>
               </div>
               <div class="file-meta-content">
                 <h4>${file.name}</h4>
@@ -324,7 +302,7 @@ class EbookPortalApp {
               class="btn ${isSkema ? 'btn-success' : 'btn-primary'} download-action-btn" 
               data-download-id="${file.id}"
               ${isDisabled ? 'disabled' : ''}>
-              ${isDisabled ? '❌ Had Muat Turun Habis' : '📥 Muat Turun Fail PDF'}
+              ${isDisabled ? 'Quota Limit Reached' : 'Download PDF'}
             </button>
           </div>
         `;
@@ -332,76 +310,62 @@ class EbookPortalApp {
     }
   }
 
-  // Mengendalikan proses muat turun dan tolak kuota (-1) secara selamat
+  // Handle PDF Download and Deduct Quota (-1)
   async handleFileDownload(fileId) {
     if (!this.currentKeyData) {
-      this.showToast("Sila sahkan Kod Lesen terlebih dahulu.", "error");
+      this.showToast("Please verify your license key first.", "error");
       return;
     }
 
     const currentKey = this.currentKeyData;
 
     if (currentKey.downloadsLeft <= 0) {
-      this.showToast("Had muat turun untuk kod ini telah habis (0/4).", "error");
+      this.showToast("Download quota exhausted for this license key (0/4).", "error");
       this.renderDownloadSection(currentKey, false);
       return;
     }
 
     const confirmDownload = confirm(
-      `PENTING:\nAnda akan menggunakan 1 kuota muat turun.\nBaki semasa: ${currentKey.downloadsLeft} kali.\n\nSistem akan menjana No. Siri Keselamatan & Meterai Sah pada dokumen PDF anda.\n\nAdakah anda ingin meneruskan muat turun fail ini sekarang?`
+      `CONFIRMATION:\nYou are about to use 1 download allocation.\nRemaining quota: ${currentKey.downloadsLeft}.\n\nA verified security serial and timestamp seal will be embedded into your PDF file.\n\nProceed with download now?`
     );
 
     if (!confirmDownload) return;
 
-    // Papar status proses pada butang
     const downloadBtns = document.querySelectorAll(".download-action-btn");
     downloadBtns.forEach(btn => {
       btn.disabled = true;
-      btn.innerHTML = `<span>⏳ Menjana Meterai Keselamatan...</span>`;
+      btn.innerHTML = `<span>Securing & Watermarking PDF...</span>`;
     });
 
-    let updatedRecord = { ...currentKey };
+    let updatedRecord = {
+      ...currentKey,
+      downloadsLeft: Math.max(0, currentKey.downloadsLeft - 1),
+      downloadCount: (currentKey.downloadCount || 0) + 1,
+      lastDownloadAt: new Date().toISOString()
+    };
 
-    // 1. Kemas kini di Supabase Cloud jika aktif
-    if (this.isCloudActive && this.supabase) {
+    if (updatedRecord.downloadsLeft <= 0) {
+      updatedRecord.status = "exhausted";
+    }
+
+    // 1. Update in Supabase Cloud
+    if (this.isCloudActive && this.supabase && currentKey.id) {
       try {
-        // Cuba panggil RPC fungsi selamat dahulu
-        const { data: rpcData, error: rpcError } = await this.supabase.rpc("decrement_download", {
-          p_key: currentKey.key
-        });
-
-        if (!rpcError && rpcData && rpcData.success) {
-          updatedRecord.downloadsLeft = rpcData.downloads_left;
-          updatedRecord.downloadCount = rpcData.download_count;
-          updatedRecord.status = rpcData.status;
-        } else {
-          // Direct update fallback di Supabase
-          const newLeft = Math.max(0, currentKey.downloadsLeft - 1);
-          const newCount = (currentKey.downloadCount || 0) + 1;
-          const newStatus = newLeft <= 0 ? "exhausted" : "active";
-
-          const { error: updErr } = await this.supabase
-            .from("license_keys")
-            .update({
-              downloads_left: newLeft,
-              download_count: newCount,
-              status: newStatus,
-              last_download_at: new Date().toISOString()
-            })
-            .ilike("key", currentKey.key);
-
-          if (!updErr) {
-            updatedRecord.downloadsLeft = newLeft;
-            updatedRecord.downloadCount = newCount;
-            updatedRecord.status = newStatus;
-          }
-        }
+        await this.supabase
+          .from("license_keys")
+          .update({
+            downloads_left: updatedRecord.downloadsLeft,
+            download_count: updatedRecord.downloadCount,
+            last_download_at: updatedRecord.lastDownloadAt,
+            status: updatedRecord.status
+          })
+          .eq("id", currentKey.id);
       } catch (err) {
-        console.warn("Ralat Supabase decrement, menggunakan local fallback:", err);
+        console.warn("Supabase decrement error, using local fallback:", err);
       }
     }
 
-    // 2. Kemas kini di Local Vault Cache
+    // 2. Update local vault
     const vault = this.getVault();
     const keyIndex = vault.keys.findIndex(k => k.key.toUpperCase() === currentKey.key.toUpperCase());
     if (keyIndex !== -1) {
@@ -419,26 +383,25 @@ class EbookPortalApp {
 
     this.currentKeyData = updatedRecord;
 
-    // 3. Cari fail PDF sasaran & jana fail bermeterai keselamatan (No. Siri + Timestamp Muka Surat 17 & 37)
+    // 3. Generate stamped PDF and trigger download
     const targetFile = APP_CONFIG.product.files.find(f => f.id === fileId);
     if (targetFile) {
       await this.triggerSecurePdfDownload(targetFile, updatedRecord);
     }
 
-    // 4. Kemas kini paparan UI
+    // 4. Update UI
     this.renderDownloadSection(updatedRecord, updatedRecord.downloadsLeft > 0);
-    this.showToast(`Berjaya! Fail PDF telah dibekalkan No. Siri & Meterai Keselamatan rasmi. Baki: ${updatedRecord.downloadsLeft} kali.`, "success");
+    this.showToast(`Download complete. Official security seal applied. Quota remaining: ${updatedRecord.downloadsLeft}.`, "success");
   }
 
-  // Menjana imej lencana keselamatan resolusi tinggi (Canvas Rasterized PNG)
-  // Menjadikan teks No. Siri & Timestamp tidak boleh diedit / dipilih oleh Adobe Acrobat "Edit Text"
+  // Generate rasterized security badge PNG (Canvas)
   generateWatermarkBadgePng(stampText) {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    const scale = 4; // 4x Retina Scale untuk kejelasan maksimum tanpa kabur
+    const scale = 4;
     const fontSize = 10 * scale;
 
-    ctx.font = `600 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+    ctx.font = `600 ${fontSize}px -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif`;
     const textMetrics = ctx.measureText(stampText);
     const textWidth = textMetrics.width;
     const textHeight = fontSize * 1.3;
@@ -449,11 +412,9 @@ class EbookPortalApp {
     canvas.width = Math.ceil(textWidth + (padX * 2));
     canvas.height = Math.ceil(textHeight + (padY * 2));
 
-    // Tetapkan semula font selepas saiz kanvas ditukar
-    ctx.font = `600 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+    ctx.font = `600 ${fontSize}px -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif`;
     ctx.textBaseline = "middle";
 
-    // Lukis latar belakang lencana keselamatan (Security Pill Badge)
     const r = 4 * scale;
     ctx.fillStyle = "rgba(243, 244, 246, 0.96)";
     ctx.strokeStyle = "rgba(209, 213, 219, 0.9)";
@@ -469,11 +430,9 @@ class EbookPortalApp {
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
     }
 
-    // Lukis teks No. Siri & Tarikh (Rasterized Pixel Graphics - Tidak boleh diedit sebagai teks)
-    ctx.fillStyle = "#1e293b";
+    ctx.fillStyle = "#1d1d1f";
     ctx.fillText(stampText, padX, canvas.height / 2);
 
-    // Tukar kanvas ke Uint8Array (PNG Binary Bytes)
     const dataUrl = canvas.toDataURL("image/png");
     const base64 = dataUrl.split(",")[1];
     const binaryString = atob(base64);
@@ -489,29 +448,26 @@ class EbookPortalApp {
     };
   }
 
-  // Menjana No. Siri Unik & Timestamp pada Muka Surat 17 & 37 dokumen PDF
+  // Embed verified stamp on Page 17 & Page 37
   async triggerSecurePdfDownload(targetFile, keyRecord) {
     const pdfLibObj = window.PDFLib || (typeof PDFLib !== "undefined" ? PDFLib : null);
 
     if (!pdfLibObj) {
-      console.warn("PDF-Lib tidak ditemui, memuat turun fail asal.");
+      console.warn("PDF-Lib not detected, falling back to direct download.");
       this.triggerBrowserDownload(targetFile);
       return;
     }
 
     try {
-      this.showToast("🔐 Menyuntik Meterai Keselamatan (Muka Surat 17 & 37)...", "info");
+      this.showToast("Securing PDF document...", "info");
 
-      // 1. Dapatkan fail PDF asal sebagai ArrayBuffer
       const response = await fetch(targetFile.url);
-      if (!response.ok) throw new Error("Gagal membaca fail PDF dari pelayan.");
+      if (!response.ok) throw new Error("Failed to fetch PDF file.");
       const existingPdfBytes = await response.arrayBuffer();
 
-      // 2. Muatkan dokumen PDF menggunakan PDF-Lib (dengan sokongan penyulitan)
       const { PDFDocument } = pdfLibObj;
       const pdfDoc = await PDFDocument.load(existingPdfBytes, { ignoreEncryption: true });
 
-      // 3. Format No. Siri Unik & Timestamp Rasmi
       const now = new Date();
       const pad = (n) => String(n).padStart(2, "0");
       const day = pad(now.getDate());
@@ -523,16 +479,13 @@ class EbookPortalApp {
       const formattedDate = `${day}/${month}/${year}`;
       const formattedTime = `${hours}:${minutes}:${seconds}`;
 
-      // Hasilkan kod transaksi rawak unik untuk setiap sesi muat turun
       const trxHash = Math.random().toString(36).substring(2, 8).toUpperCase();
       const uniqueSerial = `${keyRecord.key || "FZ26-XXXX-XXXX"}-${trxHash}`;
-      const stampText = `No. Siri: ${uniqueSerial}  |  Sah: ${formattedDate} ${formattedTime} (MYT)`;
+      const stampText = `Serial: ${uniqueSerial}  |  Verified: ${formattedDate} ${formattedTime} (MYT)`;
 
-      // 4. Jana Imej Lencana Keselamatan (Raster PNG - Kalis Edit Adobe Acrobat)
       const badge = this.generateWatermarkBadgePng(stampText);
       const embeddedBadge = await pdfDoc.embedPng(badge.pngBytes);
 
-      // 5. Suntik imej meterai pada Muka Surat 17 (index 16) & Muka Surat 37 (index 36)
       const pagesToStamp = [17, 37];
       const totalPages = pdfDoc.getPageCount();
 
@@ -540,7 +493,7 @@ class EbookPortalApp {
         const pIndex = pageNum - 1;
         if (pIndex < totalPages) {
           const page = pdfDoc.getPage(pIndex);
-          const { width, height } = page.getSize();
+          const { width } = page.getSize();
 
           const paddingRight = 20;
           const x = width - badge.width - paddingRight;
@@ -556,12 +509,10 @@ class EbookPortalApp {
         }
       }
 
-      // 6. Simpan fail PDF yang telah dimeterai secara kekal
       const modifiedPdfBytes = await pdfDoc.save();
       const blob = new Blob([modifiedPdfBytes], { type: "application/pdf" });
       const blobUrl = URL.createObjectURL(blob);
 
-      // 7. Muat turun ke peranti pengguna secara automatik
       const link = document.createElement("a");
       link.href = blobUrl;
       link.download = targetFile.filename;
@@ -572,13 +523,12 @@ class EbookPortalApp {
       setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
 
     } catch (err) {
-      console.error("Ralat menyuntik meterai keselamatan PDF:", err);
-      this.showToast("Menggunakan mod muat turun sandaran...", "warning");
+      console.error("PDF watermark error:", err);
+      this.showToast("Proceeding with standard download...", "warning");
       this.triggerBrowserDownload(targetFile);
     }
   }
 
-  // Trigger Muat Turun Fail Asal (Fallback)
   triggerBrowserDownload(file) {
     const link = document.createElement("a");
     link.href = file.url;
@@ -593,25 +543,15 @@ class EbookPortalApp {
     const statusMsg = document.getElementById("statusMsg");
     if (!statusMsg) return;
 
-    statusMsg.className = `status-msg ${type}`;
-    let icon = "ℹ️";
-    if (type === "error") icon = "❌";
-    if (type === "success") icon = "✅";
-    if (type === "warning") icon = "⚠️";
-
-    statusMsg.innerHTML = `<span>${icon}</span> <div>${message}</div>`;
+    statusMsg.className = `status-msg ${type} active`;
+    statusMsg.innerHTML = `<div>${message}</div>`;
   }
 
   showToast(message, type = "success") {
     const container = document.getElementById("toastContainer") || this.createToastContainer();
     const toast = document.createElement("div");
     toast.className = `toast toast-${type}`;
-    
-    let icon = "✅";
-    if (type === "error") icon = "❌";
-    if (type === "warning") icon = "⚠️";
-
-    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    toast.innerHTML = `<span>${message}</span>`;
     container.appendChild(toast);
 
     setTimeout(() => {
