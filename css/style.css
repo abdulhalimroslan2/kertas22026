@@ -194,20 +194,25 @@ button {
 }
 
 .btn-nav-admin {
-  background: #1d1d1f;
+  background: var(--apple-blue);
   color: #ffffff;
-  padding: 6px 14px;
+  padding: 6px 16px;
   border-radius: var(--radius-pill);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  transition: all 0.2s ease;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0, 113, 227, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-nav-admin:hover {
-  background: #333336;
+  background: var(--apple-blue-hover);
   transform: scale(1.02);
+  box-shadow: 0 4px 14px rgba(0, 113, 227, 0.38);
+}
+.btn-nav-admin:active {
+  transform: scale(0.98);
 }
 
 .mobile-menu-btn {
