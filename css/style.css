@@ -114,7 +114,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left));
   gap: 16px;
 }
 
@@ -210,6 +210,7 @@ button {
   gap: 6px;
   box-shadow: 0 2px 8px rgba(0, 113, 227, 0.25);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  touch-action: manipulation;
 }
 .btn-nav-admin:hover {
   background: var(--apple-blue-hover);
@@ -224,6 +225,7 @@ button {
   display: none;
   padding: 6px;
   color: var(--text-main);
+  touch-action: manipulation;
 }
 
 /* ==========================================================================
@@ -254,7 +256,7 @@ button {
   width: 100%;
   max-width: 980px;
   margin: 0 auto;
-  padding: 44px 20px 80px;
+  padding: 44px max(20px, env(safe-area-inset-right)) 80px max(20px, env(safe-area-inset-left));
   flex: 1;
 }
 
@@ -1225,6 +1227,49 @@ button {
 /* ==========================================================================
    11. RESPONSIVE BREAKPOINTS
    ========================================================================== */
+/* ==========================================================================
+   11. COMPLETE MULTI-DEVICE RESPONSIVE ENGINE (TABLETS & PHONES)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   A. TABLETS (PORTRAIT & LANDSCAPE: 769px to 1024px)
+   -------------------------------------------------------------------------- */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .app-container {
+    padding: 36px 24px 64px;
+  }
+
+  .store-header {
+    margin-bottom: 30px;
+  }
+  .store-title {
+    font-size: 40px;
+    line-height: 1.1;
+  }
+  .store-subtitle {
+    font-size: 17px;
+    max-width: 720px;
+  }
+
+  .product-spotlight-card.cinematic-hero-panel {
+    aspect-ratio: 16 / 8;
+    max-height: 320px;
+  }
+
+  .download-files-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .support-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   B. MOBILE HANDPHONES & SMALL SCREENS (PORTRAIT: max-width 768px)
+   -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
   .globalnav-list {
     display: none;
@@ -1232,48 +1277,241 @@ button {
   .mobile-menu-btn {
     display: flex;
   }
+
   .store-header {
-    margin-bottom: 24px;
+    margin-bottom: 22px;
     text-align: left;
   }
   .store-category-label {
-    font-size: 15px;
-    margin-bottom: 6px;
+    font-size: 14px;
+    margin-bottom: 4px;
   }
   .store-title {
-    font-size: 32px;
+    font-size: 30px;
     line-height: 1.12;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     text-align: left;
+    letter-spacing: -0.025em;
   }
   .store-subtitle {
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.45;
     text-align: left;
   }
-  .product-spotlight-card {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 22px;
+
+  .product-spotlight-card.cinematic-hero-panel {
+    aspect-ratio: 16 / 9;
+    min-height: 180px;
+    margin-bottom: 24px;
+    border-radius: 18px;
   }
-  .product-right {
-    align-items: flex-start;
-    width: 100%;
+  .cinematic-action-overlay {
+    bottom: 12px;
+    right: 12px;
   }
+  .cinematic-explore-pill {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+
   .verify-card {
-    padding: 24px 20px;
+    padding: 24px 18px 20px;
+    border-radius: 18px;
+    margin-bottom: 24px;
   }
+  .card-heading h2 {
+    font-size: 20px;
+  }
+  .card-heading p {
+    font-size: 13.5px;
+  }
+
   .apple-input-row {
     flex-direction: column;
+    gap: 10px;
+  }
+  .apple-key-input {
+    height: 48px;
+    font-size: 15px;
+    padding: 0 16px 0 46px;
   }
   .apple-btn-primary {
     width: 100%;
+    height: 48px;
+    font-size: 15px;
+    touch-action: manipulation;
   }
+
+  /* Unlocked Download Section */
   .delivery-banner {
     flex-direction: column;
     align-items: flex-start;
+    padding: 18px;
+    gap: 14px;
+    border-radius: 18px;
   }
   .quota-box {
     align-items: flex-start;
+    width: 100%;
+  }
+
+  .download-files-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .download-card {
+    padding: 20px 18px;
+    border-radius: 18px;
+  }
+  .download-action-btn {
+    height: 46px;
+    font-size: 14px;
+  }
+
+  /* Support Guidance Cards */
+  .support-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .support-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  /* Modals on Mobile Handphones */
+  .modal-dialog {
+    border-radius: 20px;
+    max-height: 88vh;
+  }
+  .modal-header {
+    padding: 16px 18px;
+  }
+  .modal-body {
+    padding: 18px;
+  }
+
+  .toast-container {
+    top: 54px;
+    left: 12px;
+    right: 12px;
+  }
+  .toast {
+    font-size: 12.5px;
+    padding: 10px 16px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   C. EXTRA SMALL HANDPHONES (PORTRAIT: max-width 380px e.g. iPhone SE / Mini)
+   -------------------------------------------------------------------------- */
+@media (max-width: 380px) {
+  .store-title {
+    font-size: 26px;
+  }
+  .store-subtitle {
+    font-size: 14px;
+  }
+  .product-spotlight-card.cinematic-hero-panel {
+    min-height: 160px;
+  }
+  .verify-card {
+    padding: 20px 14px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   D. MOBILE & TABLET LANDSCAPE MODE (orientation: landscape & max-height: 560px)
+   -------------------------------------------------------------------------- */
+@media (orientation: landscape) and (max-height: 560px) {
+  :root {
+    --nav-height: 42px;
+  }
+
+  .app-container {
+    padding-top: calc(var(--nav-height) + 16px) !important;
+    padding-bottom: 40px;
+  }
+
+  .store-header {
+    margin-bottom: 16px;
+  }
+  .store-category-label {
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+  .store-title {
+    font-size: 24px;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .store-subtitle {
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+
+  /* Ultra-wide video in landscape to avoid pushing content below fold */
+  .product-spotlight-card.cinematic-hero-panel {
+    aspect-ratio: 21 / 9;
+    max-height: 180px;
+    min-height: 130px;
+    margin-bottom: 18px;
+  }
+  .cinematic-explore-pill {
+    padding: 5px 12px;
+    font-size: 11.5px;
+  }
+
+  /* Form row stays side-by-side in landscape for fast keyboard typing */
+  .verify-card {
+    padding: 20px 22px 18px;
+    margin-bottom: 18px;
+  }
+  .apple-input-row {
+    flex-direction: row !important;
+    gap: 10px;
+  }
+  .apple-key-input {
+    height: 44px;
+    font-size: 14px;
+  }
+  .apple-btn-primary {
+    width: auto !important;
+    min-width: 130px;
+    height: 44px;
+    font-size: 14px;
+  }
+
+  /* Download cards 2 columns in landscape */
+  .download-files-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+  .download-card {
+    padding: 16px;
+  }
+
+  /* Support Grid 3 columns in landscape */
+  .support-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px;
+  }
+  .support-card {
+    padding: 14px;
+  }
+  .support-card h4 {
+    font-size: 13.5px;
+  }
+  .support-card p {
+    font-size: 12px;
+  }
+
+  /* Modal in landscape dialog */
+  .modal-dialog {
+    max-height: 94vh;
+  }
+  .modal-body {
+    max-height: calc(94vh - 70px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
