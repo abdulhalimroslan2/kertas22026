@@ -342,45 +342,6 @@ button {
   pointer-events: none;
 }
 
-/* Minimalist Apple Glass HUD Badge */
-.cinematic-hud-badge {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  background: rgba(29, 29, 31, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: var(--radius-pill);
-  padding: 6px 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 5;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-}
-
-.hud-pulse-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #34c759;
-  box-shadow: 0 0 8px #34c759;
-  animation: pulseGlow 2s infinite ease-in-out;
-}
-
-.hud-text {
-  font-size: 11px;
-  font-weight: 600;
-  color: #ffffff;
-  letter-spacing: 0.06em;
-}
-
-@keyframes pulseGlow {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
-}
-
 /* Floating Glass Action Button */
 .cinematic-action-overlay {
   position: absolute;
@@ -419,14 +380,6 @@ button {
     aspect-ratio: 16 / 9;
     min-height: 200px;
     margin-bottom: 24px;
-  }
-  .cinematic-hud-badge {
-    top: 12px;
-    left: 12px;
-    padding: 5px 10px;
-  }
-  .hud-text {
-    font-size: 10px;
   }
   .cinematic-action-overlay {
     bottom: 12px;
