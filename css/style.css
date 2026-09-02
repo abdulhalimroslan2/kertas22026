@@ -91,7 +91,7 @@ button {
 }
 
 /* ==========================================================================
-   1. APPLE GLOBAL NAVIGATION
+   1. APPLE GLOBAL NAVIGATION (100% EXACT APPLE STORE SPEC)
    ========================================================================== */
 .globalnav {
   position: fixed;
@@ -100,66 +100,66 @@ button {
   right: 0;
   height: var(--nav-height);
   background: var(--bg-nav);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   z-index: 1000;
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 .globalnav-content {
-  max-width: 1080px;
+  max-width: 1024px;
   height: 100%;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left));
-  gap: 16px;
+  padding: 0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
 }
 
-.globalnav-brand {
+.globalnav-left-group {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--text-main);
-  font-weight: 500;
-  font-size: 13.5px;
-  letter-spacing: -0.01em;
-  text-decoration: none;
-  opacity: 0.88;
-  transition: opacity 0.2s ease;
-}
-.globalnav-brand:hover {
-  opacity: 1;
+  gap: 24px;
+  height: 100%;
 }
 
-.globalnav-brand svg {
-  fill: currentColor;
-}
-
-.globalnav-brand span {
-  color: var(--text-main);
-}
-
-.globalnav-list {
+.globalnav-logo {
   display: flex;
   align-items: center;
-  gap: 28px;
-  list-style: none;
-}
-
-.globalnav-item a {
+  justify-content: center;
   color: var(--text-main);
-  font-size: 13px;
-  font-weight: 400;
   opacity: 0.8;
   transition: opacity 0.2s ease;
+  height: 100%;
+  text-decoration: none;
+}
+.globalnav-logo:hover {
+  opacity: 1;
+}
+.globalnav-logo svg {
+  fill: currentColor;
+  height: 44px;
+  width: 14px;
+  display: block;
 }
 
-.globalnav-item a:hover {
+.globalnav-item-link {
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.8;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  transition: opacity 0.2s ease;
+}
+.globalnav-item-link:hover {
   opacity: 1;
-  color: var(--apple-blue);
+  color: var(--text-main);
 }
 
 .globalnav-actions {
