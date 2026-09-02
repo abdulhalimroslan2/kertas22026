@@ -302,6 +302,9 @@ button {
    5. PRODUCT SPOTLIGHT CARD (APPLE TILE STYLE)
    ========================================================================== */
 .product-spotlight-card.cinematic-hero-panel {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background: #050508;
   border-radius: var(--radius-card);
   padding: 0;
@@ -312,7 +315,6 @@ button {
   position: relative;
   aspect-ratio: 16 / 7;
   min-height: 240px;
-  max-height: 380px;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1252,8 +1254,8 @@ button {
   }
 
   .product-spotlight-card.cinematic-hero-panel {
+    width: 100%;
     aspect-ratio: 16 / 8;
-    max-height: 320px;
   }
 
   .download-files-grid {
