@@ -26,6 +26,62 @@ class EbookPortalApp {
     this.bindEvents();
     this.checkUrlParams();
     this.renderProductInfo();
+    this.initCinematicVideo();
+  }
+
+  // Initialize Autonomous Cinematic Video Engine
+  initCinematicVideo() {
+    const video = document.getElementById("cinematicVideo");
+    if (!video) return;
+
+    video.muted = true;
+    video.playsInline = true;
+    video.loop = true;
+    video.autoplay = true;
+
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Fallback: Autoplay prevented by browser, play upon first interaction
+        const resumePlayback = () => {
+          video.play().catch(() => {});
+          window.removeEventListener("scroll", resumePlayback);
+          window.removeEventListener("touchstart", resumePlayback);
+          window.removeEventListener("click", resumePlayback);
+        };
+        window.addEventListener("scroll", resumePlayback, { passive: true });
+        window.addEventListener("touchstart", resumePlayback, { passive: true });
+        window.addEventListener("click", resumePlayback, { passive: true });
+      });
+    }
+
+    // Scroll-driven loop & continuous playback assurance
+    let scrollTimeout;
+    window.addEventListener("scroll", () => {
+      if (video.paused) {
+        video.play().catch(() => {});
+      }
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        if (video.paused) {
+          video.play().catch(() => {});
+        }
+      }, 150);
+    }, { passive: true });
+
+    // IntersectionObserver to conserve power when panel is scrolled out of viewport
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            if (video.paused) video.play().catch(() => {});
+          } else {
+            if (!video.paused) video.pause();
+          }
+        });
+      }, { threshold: 0.1 });
+      observer.observe(video);
+    }
   }
 
   // Initialize Supabase Cloud Client

@@ -57,31 +57,39 @@
       </p>
     </header>
 
-    <!-- Product Spotlight Card -->
-    <div class="product-spotlight-card">
-      <div class="product-left">
-        <div class="product-icon-wrap">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
-            <path d="M6 6h10"/>
-            <path d="M6 10h10"/>
-          </svg>
+    <!-- Cinematic Interactive Spotlight Panel -->
+    <div class="product-spotlight-card cinematic-hero-panel" id="cinematicPanel">
+      <div class="cinematic-video-wrapper">
+        <video 
+          id="cinematicVideo" 
+          class="cinematic-video-element" 
+          src="assets/media/robotic_arm_cinematic_60fps.mp4" 
+          autoplay 
+          muted 
+          loop 
+          playsinline 
+          webkit-playsinline
+          preload="auto">
+        </video>
+        
+        <!-- Ambient Vignette Overlay -->
+        <div class="cinematic-overlay-vignette"></div>
+        
+        <!-- HUD Status Badge (Pure Minimalist Apple Glass) -->
+        <div class="cinematic-hud-badge">
+          <span class="hud-pulse-dot"></span>
+          <span class="hud-text">4K HDR &bull; SPATIAL PREVIEW</span>
         </div>
-        <div class="product-details">
-          <h3>Physics SPM 2026 E-Book (Paper 2 + Full Marking Scheme)</h3>
-          <div class="product-tags">
-            <span class="apple-tag price" id="productPrice">RM 19.99</span>
-            <span class="apple-tag">HD PDF Format</span>
-            <span class="apple-tag">Form 4 & 5 Topical</span>
-            <span class="apple-tag">10 State Trial Papers</span>
-            <span class="apple-tag">Complete A+ Scheme</span>
-          </div>
+
+        <!-- Floating Glass Action Button -->
+        <div class="cinematic-action-overlay">
+          <a href="https://modultrial.vercel.app/" target="_blank" class="cinematic-explore-pill" title="Explore 3D Holographic Preview">
+            <span>Explore 3D Preview</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </a>
         </div>
-      </div>
-      <div class="product-right">
-        <a href="https://modultrial.vercel.app/" target="_blank" class="store-link-subtle">
-          Explore 3D Preview &rsaquo;
-        </a>
       </div>
     </div>
 
